@@ -82,3 +82,42 @@ func (idb *InDB) CreateBook(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func (idb *InDB) UpdateBook(c *gin.Context) {
+	var (
+		book    structs.Book
+		newBook structs.Book
+		result  gin.H
+	)
+
+	id := c.Param("id")
+	title := c.PostForm("title")
+	author := c.PostForm("author")
+	release_date, _ := strconv.Atoi(c.PostForm("release_date"))
+
+	err := idb.DB.Find(&book, id).Error
+
+	if err != nil {
+		result = gin.H{
+			"result": "Data not found",
+		}
+	}
+
+	newBook.Title = title
+	newBook.Author = author
+	newBook.Release_Date = release_date
+
+	err = idb.DB.Model(&book).Updates(newBook).Error
+
+	if err != nil {
+		result = gin.H{
+			"result": "Update Failes",
+		}
+	} else {
+		result = gin.H{
+			"result": "Succesfully update data",
+		}
+	}
+
+	c.JSON(http.StatusOK, result)
+}
